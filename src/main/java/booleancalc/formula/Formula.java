@@ -7,6 +7,20 @@ import java.util.*;
 
 public class Formula {
 
+    public static final Formula IDENTITY;
+
+    public static final Formula ZERO;
+
+    static {
+        Node nodeTruth = new Node();
+        nodeTruth.symbol = Bool.TRUTH;
+        IDENTITY = new Formula(nodeTruth);
+
+        Node nodeFalse = new Node();
+        nodeFalse.symbol = Bool.FALSE;
+        ZERO = new Formula(nodeFalse);
+    }
+
     final Node binaryTree;
     private final Map<Variable, Integer> variableCounter;
     private final Map<Bool, Integer> constCounter;
@@ -21,6 +35,26 @@ public class Formula {
 
         this.binaryTree = new Node(binaryTree);
         checkCorrectness(this.binaryTree);
+    }
+
+    public Formula(Variable variable) {
+        binaryTree = new Node();
+        binaryTree.symbol = variable;
+
+        variableCounter = new HashMap<>();
+        variableCounter.put(variable, 1);
+
+        constCounter = new HashMap<>();
+    }
+
+    public Formula(Bool bool) {
+        binaryTree = new Node();
+        binaryTree.symbol = bool;
+
+        variableCounter = new HashMap<>();
+
+        constCounter = new HashMap<>();
+        constCounter.put(bool, 1);
     }
 
     private void checkCorrectness(Node node) {
@@ -74,6 +108,42 @@ public class Formula {
 
     public boolean isContainVar(Variable var) {
         return variableCounter.containsKey(var);
+    }
+
+    public List<Map<Variable, Bool>> getTruthTuples() {
+        List<Map<Variable, Bool>> truthTuples = new ArrayList<>();
+        List<Variable> variables = new ArrayList<>(getAllVars());
+        if (!variables.isEmpty()) {
+            for (TupleBool tupleBool : new TupleGenerator(variables.size())) {
+                Map<Variable, Bool> map = new HashMap<>();
+                for (int i = 0; i < variables.size(); ++i) {
+                    map.put(variables.get(i), tupleBool.get(i));
+                }
+                Bool value = calcFromTree(binaryTree, map);
+                if (value == Bool.TRUTH) {
+                    truthTuples.add(map);
+                }
+            }
+        }
+        return truthTuples;
+    }
+
+    public List<Map<Variable, Bool>> getFalseTuples() {
+        List<Map<Variable, Bool>> falseTuples = new ArrayList<>();
+        List<Variable> variables = new ArrayList<>(getAllVars());
+        if (!variables.isEmpty()) {
+            for (TupleBool tupleBool : new TupleGenerator(variables.size())) {
+                Map<Variable, Bool> map = new HashMap<>();
+                for (int i = 0; i < variables.size(); ++i) {
+                    map.put(variables.get(i), tupleBool.get(i));
+                }
+                Bool value = calcFromTree(binaryTree, map);
+                if (value == Bool.FALSE) {
+                    falseTuples.add(map);
+                }
+            }
+        }
+        return falseTuples;
     }
 
     public boolean isConst() {
@@ -200,6 +270,10 @@ public class Formula {
         return toStringRecursively(binaryTree);
     }
 
+    public String toStringWithoutParenthesises() {
+        return toStringRecursivelyWithoutParenthesises(binaryTree);
+    }
+
     private String toStringRecursively(Node node) {
         if (node != null) {
             if (node.getLeft() != null && node.getRight() != null) {
@@ -208,6 +282,22 @@ public class Formula {
                 return "(" + node.op.getName() + toStringRecursively(node.getLeft()) + ")";
             } else if (node.getRight() != null) {
                 return "(" + node.op.getName() + toStringRecursively(node.getRight()) + ")";
+            }
+
+            return Character.toString(node.symbol.getName());
+        }
+
+        return "";
+    }
+
+    private String toStringRecursivelyWithoutParenthesises(Node node) {
+        if (node != null) {
+            if (node.getLeft() != null && node.getRight() != null) {
+                return toStringRecursivelyWithoutParenthesises(node.getLeft()) + node.op.getName() + toStringRecursivelyWithoutParenthesises(node.getRight());
+            } else if (node.getLeft() != null) {
+                return node.op.getName() + toStringRecursivelyWithoutParenthesises(node.getLeft());
+            } else if (node.getRight() != null) {
+                return node.op.getName() + toStringRecursivelyWithoutParenthesises(node.getRight());
             }
 
             return Character.toString(node.symbol.getName());
