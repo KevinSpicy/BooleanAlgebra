@@ -7,76 +7,77 @@ import booleancalc.parser.SimpleFormulaParser;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class CnfTest {
+public class FdnfTest {
 
     @Test
-    public void cnfTest1() {
+    public void dnfTest1() {
         Formula formula = new Formula(Bool.FALSE);
-        Formula cnf = new Cnf(formula).createNormalForm();
+        Formula dnf = new Fdnf(formula).createNormalForm();
 
-        Assert.assertEquals(formula, cnf);
+        Assert.assertEquals(formula, dnf);
     }
 
     @Test
-    public void cnfTest2() {
+    public void dnfTest2() {
         Formula formula = new Formula(Bool.TRUTH);
-        Formula cnf = new Cnf(formula).createNormalForm();
+        Formula dnf = new Fdnf(formula).createNormalForm();
 
-        Assert.assertEquals(formula, cnf);
+        Assert.assertEquals(formula, dnf);
     }
 
     @Test
-    public void cnfTest3() {
+    public void dnfTest3() {
         Formula formula = new Formula(Variable.A);
-        Formula cnf = new Cnf(formula).createNormalForm();
+        Formula dnf = new Fdnf(formula).createNormalForm();
 
-        Assert.assertEquals(formula, cnf);
+        Assert.assertEquals(formula, dnf);
     }
 
     @Test
-    public void cnfTest4() {
+    public void dnfTest4() {
         Formula formula = new Formula(Variable.A);
         formula = new Inverse().apply(formula);
-        Formula cnf = new Cnf(formula).createNormalForm();
+        Formula dnf = new Fdnf(formula).createNormalForm();
 
-        Assert.assertEquals(formula, cnf);
+        Assert.assertEquals(formula, dnf);
     }
 
     @Test
-    public void cnfTest5() {
+    public void dnfTest5() {
         Formula formula1 = new Formula(Variable.A);
         Formula formula2 = new Formula(Variable.B);
         Formula formula = new Implication().apply(formula1, formula2);
-        Formula cnf = new Cnf(formula).createNormalForm();
+        Formula dnf = new Fdnf(formula).createNormalForm();
 
-        Assert.assertEquals(formula, cnf);
+        Assert.assertEquals(formula, dnf);
     }
 
     @Test
-    public void cnfTest6() {
+    public void dnfTest6() {
         Formula formula1 = new Formula(Variable.A);
         Formula formula2 = new Formula(Variable.B);
         Formula formula = new Conjunction().apply(formula1, formula2);
-        Formula cnf = new Cnf(formula).createNormalForm();
+        Formula dnf = new Fdnf(formula).createNormalForm();
 
-        Assert.assertEquals(formula, cnf);
+        Assert.assertEquals(formula, dnf);
     }
 
     @Test
-    public void cnfTest7() {
+    public void dnfTest7() {
         Formula formula1 = new Formula(Variable.A);
         Formula formula2 = new Formula(Variable.B);
         Formula formula = new Disjunction().apply(formula1, formula2);
-        Formula cnf = new Cnf(formula).createNormalForm();
+        Formula dnf = new Fdnf(formula).createNormalForm();
 
-        Assert.assertEquals(formula, cnf);
+        Assert.assertEquals(formula, dnf);
     }
 
     @Test
-    public void cnfTest8() {
+    public void dnfTest8() {
         Formula formula = new SimpleFormulaParser("!(A < C) & D & !1 | A").parse();
-        Formula cnf = new Cnf(formula).createNormalForm();
+        Formula dnf = new Fdnf(formula).createNormalForm();
 
-        Assert.assertEquals(formula, cnf);
+        Assert.assertEquals(formula, dnf);
     }
+
 }

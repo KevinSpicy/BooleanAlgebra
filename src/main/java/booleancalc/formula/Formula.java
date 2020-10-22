@@ -250,11 +250,11 @@ public class Formula {
         Bool thisConst = constValue;
         Bool thatConst = formula.getConstValue();
 
-        if ((thisConst != null) ^ (thatConst != null)) {
+        if (isConst() ^ formula.isConst()) {
             return false;
         }
 
-        if (thisConst != null) {
+        if (isConst()) {
             return thisConst == thatConst;
         }
 

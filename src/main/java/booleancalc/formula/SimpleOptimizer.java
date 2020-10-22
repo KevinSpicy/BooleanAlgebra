@@ -36,31 +36,22 @@ public class SimpleOptimizer implements Optimizer {
             if (node.op instanceof UnaryOp) {
                 UnaryOp unaryOp = (UnaryOp) node.op;
                 if (leftConstValue != null) {
-                    node.op = null;
                     Bool value = unaryOp.apply(leftConstValue);
-                    node.symbol = value;
-                    node.setLeft(null);
-                    node.setRight(null);
+                    node.initNode(null, value, null, null);
                     return value;
                 }
 
                 if (rightConstValue != null) {
-                    node.op = null;
                     Bool value = unaryOp.apply(rightConstValue);
-                    node.symbol = value;
-                    node.setLeft(null);
-                    node.setRight(null);
+                    node.initNode(null, value, null, null);
                     return value;
                 }
             } else if (node.op instanceof BinaryOp) {
                 BinaryOp binaryOp = (BinaryOp) node.op;
 
                 if (leftConstValue != null && rightConstValue != null) {
-                    node.op = null;
                     Bool value = binaryOp.apply(leftConstValue, rightConstValue);
-                    node.symbol = value;
-                    node.setLeft(null);
-                    node.setRight(null);
+                    node.initNode(null, value, null, null);
                     return value;
                 }
 
@@ -68,19 +59,13 @@ public class SimpleOptimizer implements Optimizer {
                     Bool falseLeftResult = binaryOp.apply(leftConstValue, Bool.FALSE);
                     Bool truthLeftResult = binaryOp.apply(leftConstValue, Bool.TRUTH);
                     if (falseLeftResult == truthLeftResult) {
-                        node.op = null;
-                        node.symbol = falseLeftResult;
-                        node.setLeft(null);
-                        node.setRight(null);
+                        node.initNode(null, falseLeftResult, null, null);
                         return falseLeftResult;
                     }
 
                     if (falseLeftResult == Bool.FALSE && truthLeftResult == Bool.TRUTH) {
                         Node rightNode = node.getRight();
-                        node.op = rightNode.op;
-                        node.symbol = rightNode.symbol;
-                        node.setLeft(rightNode.getLeft());
-                        node.setRight(rightNode.getRight());
+                        node.initNode(rightNode.op, rightNode.symbol, rightNode.getLeft(), rightNode.getRight());
                     }
 
                     return null;
@@ -90,19 +75,13 @@ public class SimpleOptimizer implements Optimizer {
                     Bool falseRightResult = binaryOp.apply(Bool.FALSE, rightConstValue);
                     Bool truthRightResult = binaryOp.apply(Bool.TRUTH, rightConstValue);
                     if (falseRightResult == truthRightResult) {
-                        node.op = null;
-                        node.symbol = falseRightResult;
-                        node.setLeft(null);
-                        node.setRight(null);
+                        node.initNode(null, falseRightResult, null, null);
                         return falseRightResult;
                     }
 
                     if (falseRightResult == Bool.FALSE && truthRightResult == Bool.TRUTH) {
                         Node leftNode = node.getLeft();
-                        node.op = leftNode.op;
-                        node.symbol = leftNode.symbol;
-                        node.setLeft(leftNode.getLeft());
-                        node.setRight(leftNode.getRight());
+                        node.initNode(leftNode.op, leftNode.symbol, leftNode.getLeft(), leftNode.getRight());
                     }
 
                     return null;
@@ -110,10 +89,7 @@ public class SimpleOptimizer implements Optimizer {
 
                 Formula formula = new Formula(node);
                 if (formula.isConst()) {
-                    node.op = null;
-                    node.symbol = formula.getConstValue();
-                    node.setLeft(null);
-                    node.setRight(null);
+                    node.initNode(null, formula.getConstValue(), null, null);
                     return formula.getConstValue();
                 }
 
@@ -123,10 +99,7 @@ public class SimpleOptimizer implements Optimizer {
                     if (leftSubFormula.equals(rightSubFormula)) {
                         if (binaryOp.apply(Bool.FALSE, Bool.FALSE) == Bool.FALSE) {
                             Node leftNode = node.getLeft();
-                            node.op = leftNode.op;
-                            node.symbol = leftNode.symbol;
-                            node.setLeft(leftNode.getLeft());
-                            node.setRight(leftNode.getRight());
+                            node.initNode(leftNode.op, leftNode.symbol, leftNode.getLeft(), leftNode.getRight());
                         } else {
                             Node leftNode = node.getLeft();
                             if (leftNode.op instanceof UnaryOp) {
@@ -137,22 +110,16 @@ public class SimpleOptimizer implements Optimizer {
                                 if (leftNode.getRight() != null) {
                                     auxNode = leftNode.getRight();
                                 }
-                                node.op = auxNode.op;
-                                node.symbol = auxNode.symbol;
-                                node.setLeft(auxNode.getLeft());
-                                node.setRight(auxNode.getRight());
+                                node.initNode(auxNode.op, auxNode.symbol, auxNode.getLeft(), auxNode.getRight());
                             } else {
                                 node.op = UnaryOp.INV;
+                                node.setRight(null);
                             }
-                            node.setRight(null);
                         }
                     } else if (leftSubFormula.equals(new Inverse().apply(rightSubFormula))) {
                         if (binaryOp.apply(Bool.FALSE, Bool.TRUTH) == Bool.FALSE) {
                             Node rightNode = node.getLeft();
-                            node.op = rightNode.op;
-                            node.symbol = rightNode.symbol;
-                            node.setLeft(rightNode.getLeft());
-                            node.setRight(rightNode.getRight());
+                            node.initNode(rightNode.op, rightNode.symbol, rightNode.getLeft(), rightNode.getRight());
                         } else {
                             Node leftNode = node.getLeft();
                             if (leftNode.op instanceof UnaryOp) {
@@ -163,14 +130,11 @@ public class SimpleOptimizer implements Optimizer {
                                 if (leftNode.getRight() != null) {
                                     auxNode = leftNode.getRight();
                                 }
-                                node.op = auxNode.op;
-                                node.symbol = auxNode.symbol;
-                                node.setLeft(auxNode.getLeft());
-                                node.setRight(auxNode.getRight());
+                                node.initNode(auxNode.op, auxNode.symbol, auxNode.getLeft(), auxNode.getRight());
                             } else {
                                 node.op = UnaryOp.INV;
+                                node.setRight(null);
                             }
-                            node.setRight(null);
                         }
                     }
                 }

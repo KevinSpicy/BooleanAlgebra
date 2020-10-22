@@ -9,7 +9,25 @@ public enum Variable implements NamedEnum {
     E('E'),
     F('F'),
     G('G'),
-    H('H');
+    H('H'),
+    I('I'),
+    J('J'),
+    K('K'),
+    L('L'),
+    M('M'),
+    N('N'),
+    O('O'),
+    P('P'),
+    Q('Q'),
+    R('R'),
+    S('S'),
+    T('T'),
+    U('U'),
+    V('V'),
+    W('W'),
+    X('X'),
+    Y('Y'),
+    Z('Z');
 
     private final char name;
     Variable(char name) {

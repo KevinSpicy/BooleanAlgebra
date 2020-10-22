@@ -1,19 +1,19 @@
 package booleancalc.normalform;
 
 import booleancalc.Bool;
-import booleancalc.Variable;
 import booleancalc.formula.Conjunction;
 import booleancalc.formula.Disjunction;
 import booleancalc.formula.Formula;
+import booleancalc.Variable;
 import booleancalc.formula.Inverse;
 
 import java.util.*;
 
-public class Cnf implements NormalForm {
+public class Fdnf implements NormalForm {
 
     private final Formula formula;
 
-    public Cnf(Formula formula) {
+    public Fdnf(Formula formula) {
         this.formula = formula;
     }
 
@@ -28,37 +28,38 @@ public class Cnf implements NormalForm {
             return value == Bool.TRUTH ? Formula.IDENTITY : Formula.ZERO;
         }
 
-        List<Map<Variable, Bool>> falseTuples = formula.getFalseTuples();
+        List<Map<Variable, Bool>> truthTuples = formula.getTruthTuples();
 
         List<Variable> variables = new ArrayList<>(formula.getAllVars());
         variables.sort(Comparator.comparingInt(Variable::getName));
 
-        Formula cnf = null;
-        for (Map<Variable, Bool> falseTuple : falseTuples) {
-            Formula disjunct = null;
+        Formula dnf = null;
+        for (Map<Variable, Bool> truthTuple : truthTuples) {
+            Formula conjuct = null;
             for (Variable variable : variables) {
-                Bool value = falseTuple.get(variable);
+                Bool value = truthTuple.get(variable);
 
                 Formula literal = new Formula(variable);
-                if (value == Bool.TRUTH) {
+                if (value == Bool.FALSE) {
                     literal = new Inverse().apply(literal);
                 }
 
-                if (disjunct == null) {
-                    disjunct = literal;
+                if (conjuct == null) {
+                    conjuct = literal;
                 } else {
-                    disjunct = new Disjunction().apply(disjunct, literal);
+                    conjuct = new Conjunction().apply(conjuct, literal);
                 }
             }
 
-            if (cnf == null) {
-                cnf = disjunct;
+            if (dnf == null) {
+                dnf = conjuct;
             } else {
-                cnf = new Conjunction().apply(cnf, disjunct);
+                dnf = new Disjunction().apply(dnf, conjuct);
             }
         }
 
-        return cnf;
+        return dnf;
     }
+
 
 }

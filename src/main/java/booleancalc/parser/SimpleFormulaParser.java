@@ -41,7 +41,7 @@ public class SimpleFormulaParser implements FormulaParser {
     private String deleteNotNeededInvOp(String varFormula) {
         Pattern p = Pattern.compile(UnaryOp.INV.getName() + "{2}");
         while (p.matcher(varFormula).find()) {
-            int start = varFormula.indexOf(String.valueOf(UnaryOp.INV.getName()) + String.valueOf(UnaryOp.INV.getName()));
+            int start = varFormula.indexOf(Character.toString((UnaryOp.INV.getName())) + Character.toString(UnaryOp.INV.getName()));
             int end = start;
             while (end < varFormula.length() && varFormula.charAt(end) == UnaryOp.INV.getName()) {
                 end++;

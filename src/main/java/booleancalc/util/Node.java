@@ -59,4 +59,11 @@ public class Node {
     public void setRight(Node right) {
         this.right = right;
     }
+
+    public void initNode(Op op, NamedEnum symbol, Node left, Node right) {
+        this.op = op;
+        this.symbol = symbol;
+        this.left = left;
+        this.right = right;
+    }
 }
