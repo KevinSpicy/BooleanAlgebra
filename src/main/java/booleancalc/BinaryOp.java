@@ -25,6 +25,19 @@ public enum BinaryOp implements Op {
         public Bool apply(Bool val1, Bool val2) {
             return OR.apply(UnaryOp.INV.apply(val1), val2);
         }
+    },
+    TEST('#') {
+        public Bool apply(Bool val1, Bool val2) {
+            if (val1.getValue() && val2.getValue()) {
+                return Bool.FALSE;
+            }
+
+            if (!val1.getValue() && !val2.getValue()) {
+                return Bool.TRUTH;
+            }
+
+            return Bool.TRUTH;
+        }
     };
 
     private final char name;

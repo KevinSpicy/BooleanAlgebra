@@ -70,7 +70,7 @@ public class SimpleFormulaParser implements FormulaParser {
     }
 
     private String addParenthesisesToInvOp(String varFormula) {
-        String DELIMITER = ".";
+        // Надеемся что в формуле нет точки
         while (varFormula.contains(String.valueOf(UnaryOp.INV.getName()))) {
             int nextInv = varFormula.indexOf(UnaryOp.INV.getName());
             if (nextInv == varFormula.length()) {

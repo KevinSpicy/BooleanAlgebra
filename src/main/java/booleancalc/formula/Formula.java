@@ -11,6 +11,8 @@ public class Formula {
 
     public static final Formula ZERO;
 
+    private final Bool constValue;
+
     static {
         Node nodeTruth = new Node();
         nodeTruth.symbol = Bool.TRUTH;
@@ -34,7 +36,18 @@ public class Formula {
         constCounter = new HashMap<>();
 
         this.binaryTree = new Node(binaryTree);
-        checkCorrectness(this.binaryTree);
+        checkCorrectnessAndInit(this.binaryTree);
+
+        constValue = initConstValue();
+    }
+
+    public Formula(Formula formula) {
+        binaryTree = new Node(formula.binaryTree);
+
+        variableCounter = new HashMap<>(formula.variableCounter);
+        constCounter = new HashMap<>(formula.constCounter);
+
+        constValue = initConstValue();
     }
 
     public Formula(Variable variable) {
@@ -45,6 +58,8 @@ public class Formula {
         variableCounter.put(variable, 1);
 
         constCounter = new HashMap<>();
+
+        constValue = null;
     }
 
     public Formula(Bool bool) {
@@ -55,16 +70,18 @@ public class Formula {
 
         constCounter = new HashMap<>();
         constCounter.put(bool, 1);
+
+        constValue = bool;
     }
 
-    private void checkCorrectness(Node node) {
+    private void checkCorrectnessAndInit(Node node) {
         if (node == null) {
             return;
         }
 
         if (node.op != null) {
-            checkCorrectness(node.getLeft());
-            checkCorrectness(node.getRight());
+            checkCorrectnessAndInit(node.getLeft());
+            checkCorrectnessAndInit(node.getRight());
         } else {
             if (node.symbol == null) {
                 throw new IllegalStateException("Incorrect formula. Symbol(variable or const) cannot be a null");
@@ -103,7 +120,11 @@ public class Formula {
     }
 
     public Set<Variable> getAllVars() {
-        return variableCounter.keySet();
+        return Collections.unmodifiableSet(variableCounter.keySet());
+    }
+
+    public boolean isContainConsts() {
+        return !constCounter.isEmpty();
     }
 
     public boolean isContainVar(Variable var) {
@@ -146,11 +167,15 @@ public class Formula {
         return falseTuples;
     }
 
-    public boolean isConst() {
-        if (getAllVars().isEmpty()) {
-            return true;
-        }
+    public Bool getConstValue() {
+        return constValue;
+    }
 
+    public boolean isConst() {
+        return constValue != null;
+    }
+
+    private Bool initConstValue() {
         List<Variable> orderedVars = new ArrayList<>(getAllVars());
         Map<Variable, Bool> tuple = new HashMap<>();
         Bool firstValue = null;
@@ -163,10 +188,11 @@ public class Formula {
                 firstValue = secondValue;
             }
             if (firstValue != secondValue) {
-                return false;
+                return null;
             }
         }
-        return true;
+
+        return firstValue;
     }
 
     public Bool calcFromMap(Map<Variable, Bool> tuple) {
@@ -174,7 +200,7 @@ public class Formula {
             throw new IllegalArgumentException("Tuple is null");
         }
 
-        if (!getAllVars().equals(tuple.keySet()) && !isConst()) {
+        if (!getAllVars().equals(tuple.keySet()) && constValue != null) {
             throw new IllegalArgumentException("This tuple is not for this formula");
         }
 
@@ -221,24 +247,15 @@ public class Formula {
         if (o == null || getClass() != o.getClass()) return false;
         Formula formula = (Formula) o;
 
-        boolean thisConst = isConst();
-        boolean thatConst = formula.isConst();
+        Bool thisConst = constValue;
+        Bool thatConst = formula.getConstValue();
 
-        if (thisConst ^ thatConst) {
+        if ((thisConst != null) ^ (thatConst != null)) {
             return false;
         }
 
-        if (thisConst) {
-            Map<Variable, Bool> mapThis = new HashMap<>();
-            for (Variable var : getAllVars()) {
-                mapThis.put(var, Bool.FALSE);
-            }
-
-            Map<Variable, Bool> mapThat = new HashMap<>();
-            for (Variable var : formula.getAllVars()) {
-                mapThat.put(var, Bool.FALSE);
-            }
-            return calcFromTree(binaryTree, mapThis) == formula.calcFromTree(formula.binaryTree, mapThat);
+        if (thisConst != null) {
+            return thisConst == thatConst;
         }
 
         if (!getAllVars().equals(formula.getAllVars())) {
